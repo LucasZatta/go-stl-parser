@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	f, err := os.Open("solid.stl")
+	f, err := os.Open("cube.stl")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,4 +19,5 @@ func main() {
 	}
 
 	mesh.Facets()
+	mesh.SurfaceArea()
 }

@@ -51,11 +51,11 @@ func ParseSTL(r io.Reader) (*Model, error) {
 	var mesh *Model = new(Model)
 	var facet *Facet = new(Facet)
 
-	var verts [][]float32
+	var verts [][]float64
 
 	for scanner.Scan() {
 		currentWord := scanner.Text()
-		fmt.Println(currentWord)
+		// //fmt.Println(currentWord)
 		switch state {
 		case start:
 			if currentWord != "solid" {
@@ -90,7 +90,7 @@ func ParseSTL(r io.Reader) (*Model, error) {
 
 		case normal:
 			normalV, err := scanTriple(scanner)
-			fmt.Println(normalV)
+			////fmt.Println(normalV)
 			facet.facetNormal = normalV
 			if err != nil {
 				return nil, fmt.Errorf("error 2")
@@ -133,8 +133,8 @@ func ParseSTL(r io.Reader) (*Model, error) {
 				return nil, fmt.Errorf("Expected keyword `endfacet`")
 			}
 			if len(verts) != 3 {
-				fmt.Println("len verts %i", len(verts))
-				fmt.Println(verts)
+				//fmt.Println("len verts %i", len(verts))
+				//fmt.Println(verts)
 
 				return nil, fmt.Errorf("Expected 3 vertices")
 
@@ -142,7 +142,7 @@ func ParseSTL(r io.Reader) (*Model, error) {
 
 			facet.vertexes = verts
 			mesh.facets = append(mesh.facets, *facet)
-			verts = [][]float32{}
+			verts = [][]float64{}
 			facet = &Facet{}
 			state = endfacet
 		}
@@ -151,7 +151,7 @@ func ParseSTL(r io.Reader) (*Model, error) {
 	return mesh, nil
 }
 
-func scanTriple(scanner *bufio.Scanner) ([]float32, error) {
+func scanTriple(scanner *bufio.Scanner) ([]float64, error) {
 	// The scanner is already positioned at the first float
 	x, err := strconv.ParseFloat(scanner.Text(), 32)
 	if err != nil {
@@ -167,10 +167,10 @@ func scanTriple(scanner *bufio.Scanner) ([]float32, error) {
 		return nil, err
 	}
 
-	return []float32{float32(x), y, z}, nil
+	return []float64{x, y, z}, nil
 }
 
-func scanFloat32(scanner *bufio.Scanner) (float32, error) {
+func scanFloat32(scanner *bufio.Scanner) (float64, error) {
 	if !scanner.Scan() {
 		return 0, io.ErrUnexpectedEOF
 	}
@@ -178,5 +178,5 @@ func scanFloat32(scanner *bufio.Scanner) (float32, error) {
 		return 0, err
 	}
 	n, err := strconv.ParseFloat(scanner.Text(), 32)
-	return float32(n), err
+	return n, err
 }
