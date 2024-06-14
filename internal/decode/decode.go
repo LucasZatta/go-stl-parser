@@ -16,7 +16,7 @@ const (
 	facetLoop
 	outer
 	loop
-	vertexes
+	vertices
 	endloop
 	endfacet
 	endsolid
@@ -113,14 +113,14 @@ func ParseSTL(r io.Reader) (*Model, error) {
 		case loop:
 			switch currentWord {
 			case "vertex":
-				state = vertexes
+				state = vertices
 			case "endloop":
 				state = endloop
 			default:
 				return nil, fmt.Errorf("expected `vertex` or `endloop`")
 			}
 
-		case vertexes:
+		case vertices:
 			vert, err := scanTriple(scanner)
 			if err != nil {
 				return nil, fmt.Errorf("error 4")
@@ -130,17 +130,17 @@ func ParseSTL(r io.Reader) (*Model, error) {
 
 		case endloop:
 			if currentWord != "endfacet" {
-				return nil, fmt.Errorf("Expected keyword `endfacet`")
+				return nil, fmt.Errorf("expected keyword `endfacet`")
 			}
 			if len(verts) != 3 {
 				//fmt.Println("len verts %i", len(verts))
 				//fmt.Println(verts)
 
-				return nil, fmt.Errorf("Expected 3 vertices")
+				return nil, fmt.Errorf("expected 3 vertices")
 
 			}
 
-			facet.vertexes = verts
+			facet.vertices = verts
 			mesh.facets = append(mesh.facets, *facet)
 			verts = [][]float64{}
 			facet = &Facet{}
@@ -152,17 +152,15 @@ func ParseSTL(r io.Reader) (*Model, error) {
 }
 
 func scanTriple(scanner *bufio.Scanner) ([]float64, error) {
-	// The scanner is already positioned at the first float
 	x, err := strconv.ParseFloat(scanner.Text(), 32)
 	if err != nil {
 		return nil, err
 	}
-	x = x
-	y, err := scanFloat32(scanner)
+	y, err := scanFloat(scanner)
 	if err != nil {
 		return nil, err
 	}
-	z, err := scanFloat32(scanner)
+	z, err := scanFloat(scanner)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +168,7 @@ func scanTriple(scanner *bufio.Scanner) ([]float64, error) {
 	return []float64{x, y, z}, nil
 }
 
-func scanFloat32(scanner *bufio.Scanner) (float64, error) {
+func scanFloat(scanner *bufio.Scanner) (float64, error) {
 	if !scanner.Scan() {
 		return 0, io.ErrUnexpectedEOF
 	}

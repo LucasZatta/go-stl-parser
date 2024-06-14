@@ -35,15 +35,15 @@ func (m Model) Facets() {
 }
 
 type Facet struct {
-	vertexes    [][]float64
+	vertices    [][]float64
 	facetNormal []float64
 }
 
 func (f Facet) FacetArea() float64 {
-	ab := vector.Vector(f.vertexes[0]).Sub(vector.Vector(f.vertexes[1]))
-	ac := vector.Vector(f.vertexes[0]).Sub(vector.Vector(f.vertexes[2]))
+	vectorAB := vector.Vector(f.vertices[0]).Sub(vector.Vector(f.vertices[1]))
+	vectorAC := vector.Vector(f.vertices[0]).Sub(vector.Vector(f.vertices[2]))
 
-	crossFactor, err := ab.Cross(ac)
+	crossFactor, err := vectorAB.Cross(vectorAC)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
