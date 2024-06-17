@@ -11,26 +11,24 @@ type Model struct {
 	facets    []Facet
 }
 
-func (m Model) ModelVolume() float64 {
-	return 0
-}
+// func (m Model) ModelVolume() float64 {
+// 	return 0
+// }
 
 func (m Model) SurfaceArea() {
 	var totalSurfaceArea float64
 	for _, facet := range m.facets {
 		totalSurfaceArea += facet.FacetArea()
-		fmt.Println(facet.FacetArea())
 	}
 
 	fmt.Println(totalSurfaceArea)
 }
 
 func (m Model) Facets() {
-	fmt.Println("Total facets", len(m.facets))
-	for facet, i := range m.facets {
-		fmt.Println(i)
+	fmt.Printf("Total facets: %d", len(m.facets))
+	for i, facet := range m.facets {
 
-		fmt.Printf("%+v\n", facet)
+		fmt.Printf("facet number %d : %+v\n", i, facet)
 	}
 }
 

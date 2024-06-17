@@ -23,13 +23,14 @@ const (
 )
 
 func DecodeSTL(r io.Reader) (*Model, error) {
+	//create buffer and open file
 	buffer := make([]byte, 5)
 	_, err := io.ReadFull(r, buffer)
-
 	if err != nil {
 		return nil, err
 	}
 
+	//returning file reader to the start
 	if s, ok := r.(io.Seeker); ok {
 		_, err = s.Seek(0, io.SeekStart)
 		if err != nil {
@@ -39,6 +40,7 @@ func DecodeSTL(r io.Reader) (*Model, error) {
 		r = io.MultiReader(bytes.NewReader(buffer), r)
 	}
 
+	//calling actual parser! simple state machine that goes through the stl file
 	return ParseSTL(r)
 }
 
@@ -55,12 +57,8 @@ func ParseSTL(r io.Reader) (*Model, error) {
 
 	for scanner.Scan() {
 		currentWord := scanner.Text()
-		// //fmt.Println(currentWord)
 		switch state {
 		case start:
-			if currentWord != "solid" {
-				return nil, fmt.Errorf("ASCII STL file must start with `solid`")
-			}
 			state = solid
 
 		case solid:
@@ -75,39 +73,26 @@ func ParseSTL(r io.Reader) (*Model, error) {
 			switch currentWord {
 			case "facet":
 				state = facetStep
-				//i can initialize the facet here. but this step wouldnt do much beyond this. Maybe i cant just cut it
 			case "endsolid":
-
 				return mesh, nil
 			}
 
 		case facetStep:
-			if currentWord != "normal" {
-				//error
-				return nil, fmt.Errorf("error 1")
-			}
 			state = normal
 
 		case normal:
-			normalV, err := scanTriple(scanner)
-			////fmt.Println(normalV)
+			normalV, err := scanCoords(scanner)
 			facet.facetNormal = normalV
 			if err != nil {
-				return nil, fmt.Errorf("error 2")
+				return nil, fmt.Errorf("error scaning normal vector coordinates")
 			}
 
 			state = facetLoop
 
 		case facetLoop:
-			if currentWord != "outer" {
-				return nil, fmt.Errorf("expected keywords `outer loop`")
-			}
 			state = outer
 
 		case outer:
-			if currentWord != "loop" {
-				return nil, fmt.Errorf("expected keywords `outer loop`")
-			}
 			state = loop
 
 		case loop:
@@ -116,28 +101,19 @@ func ParseSTL(r io.Reader) (*Model, error) {
 				state = vertices
 			case "endloop":
 				state = endloop
-			default:
-				return nil, fmt.Errorf("expected `vertex` or `endloop`")
 			}
 
 		case vertices:
-			vert, err := scanTriple(scanner)
+			vert, err := scanCoords(scanner)
 			if err != nil {
-				return nil, fmt.Errorf("error 4")
+				return nil, fmt.Errorf("error scaning verts coordinates")
 			}
 			verts = append(verts, vert)
 			state = loop
 
 		case endloop:
-			if currentWord != "endfacet" {
-				return nil, fmt.Errorf("expected keyword `endfacet`")
-			}
 			if len(verts) != 3 {
-				//fmt.Println("len verts %i", len(verts))
-				//fmt.Println(verts)
-
-				return nil, fmt.Errorf("expected 3 vertices")
-
+				return nil, fmt.Errorf("expected 3 vertices but got %d", len(verts))
 			}
 
 			facet.vertices = verts
@@ -151,7 +127,7 @@ func ParseSTL(r io.Reader) (*Model, error) {
 	return mesh, nil
 }
 
-func scanTriple(scanner *bufio.Scanner) ([]float64, error) {
+func scanCoords(scanner *bufio.Scanner) ([]float64, error) {
 	x, err := strconv.ParseFloat(scanner.Text(), 32)
 	if err != nil {
 		return nil, err
@@ -175,6 +151,6 @@ func scanFloat(scanner *bufio.Scanner) (float64, error) {
 	if err := scanner.Err(); err != nil {
 		return 0, err
 	}
-	n, err := strconv.ParseFloat(scanner.Text(), 32)
+	n, err := strconv.ParseFloat(scanner.Text(), 64)
 	return n, err
 }

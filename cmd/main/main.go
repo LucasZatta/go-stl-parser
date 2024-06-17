@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	filePath := flag.String("fp", "../../stl/solid.stl", "STL file path")
+	filePath := flag.String("fp", "././stl/solid.stl", "STL file path")
 	flag.Parse()
 
 	f, err := os.Open(*filePath)
