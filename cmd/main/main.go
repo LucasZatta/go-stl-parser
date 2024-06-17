@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 
@@ -22,6 +23,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	mesh.Facets()
-	mesh.SurfaceArea()
+	fmt.Printf("Number of Triangles: %d \n", mesh.Facets())
+	fmt.Printf("Surface Area: %f \n", mesh.SurfaceArea())
 }

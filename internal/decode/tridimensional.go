@@ -15,21 +15,16 @@ type Model struct {
 // 	return 0
 // }
 
-func (m Model) SurfaceArea() {
+func (m Model) SurfaceArea() float64 {
 	var totalSurfaceArea float64
 	for _, facet := range m.facets {
 		totalSurfaceArea += facet.FacetArea()
 	}
-
-	fmt.Println(totalSurfaceArea)
+	return totalSurfaceArea
 }
 
-func (m Model) Facets() {
-	fmt.Printf("Total facets: %d", len(m.facets))
-	for i, facet := range m.facets {
-
-		fmt.Printf("facet number %d : %+v\n", i, facet)
-	}
+func (m Model) Facets() int {
+	return len(m.facets)
 }
 
 type Facet struct {

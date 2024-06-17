@@ -10,7 +10,7 @@ build:
 
 # Run the application
 run:
-	@go run cmd/main/main.go
+	@go run cmd/main/main.go -fp=$(fp)
 
 
 # Clean the binary
